@@ -124,7 +124,7 @@ footer{text-align:center;padding:22px 0 30px;color:var(--muted);font-size:13px;b
     <label for="msg">Koi message (optional)</label>
     <textarea id="msg" placeholder="Jaise: dulhan makeup, 2 log, etc."></textarea>
     <div class="err" id="err" role="alert"></div>
-    <button type="submit" class="btn wa">Book on WhatsApp</button>
+    <button type="submit" class="btn wa">Slot Book Karein</button>
     <p class="note">Book karte hi ye slot sabko "Booked" dikhega, aur koi doosra ise book nahi kar payega.</p>
   </form>
   <div id="done" style="max-width:560px;margin:14px auto 0"></div>
@@ -140,15 +140,23 @@ footer{text-align:center;padding:22px 0 30px;color:var(--muted);font-size:13px;b
   </div>
 </div></section>
 
-<footer><div class="wrap"><a href="#book" id="olink" style="float:right;font-size:12px;opacity:.6">Owner Login</a>&copy; Gita Shringar Store &amp; Beauty Parlour &middot; Beauty Parlour &middot; Shringar Store &middot; Bridal Jewellery &amp; Le<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<footer><div class="wrap"><a href="#book" id="olink" style="float:right;font-size:12px;opacity:.6">Owner Login</a>&copy; Gita Shringar Store &amp; Beauty Parlour &middot; Beauty Parlour &middot; Shringar Store &middot; Bridal Jewellery &amp; Lehenga on Rent</div></footer>
+<a class="fab" id="waFab" href="#" target="_blank" rel="noopener">WhatsApp</a>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script>
-/* ====== SETUP: yahan apna Firebase config paste kijiye (Firebase Console > Project settings > Your apps) ====== */
+/* ====== SETUP: neeche ke PASTE_... ki jagah apni values daaliye. Quotes " " aur comma , mat hataiye ====== */
 var firebaseConfig={apiKey:"PASTE_API_KEY",authDomain:"PASTE_AUTH_DOMAIN",projectId:"PASTE_PROJECT_ID",appId:"PASTE_APP_ID"};
-/* ====================================================================================================== */
+var EMAIL_URL="PASTE_FORMSPREE_URL"; /* email notification (baby.mehtaprofessional@gmail.com) */
+/* ============================================================================================== */
+</script>
+<script>
 var NUM="919304253705";
-var ready=firebaseConfig.apiKey.indexOf("PASTE")<0,db=null,auth=null,unsub=null;
+var cfg=(typeof firebaseConfig!=="undefined")?firebaseConfig:{apiKey:"PASTE"};
+var EM=(typeof EMAIL_URL!=="undefined")?EMAIL_URL:"PASTE";
+var ready=String(cfg.apiKey||"PASTE").indexOf("PASTE")<0,db=null,auth=null,unsub=null;
 var hi="Namaste, mujhe Gita Shringar Store & Beauty Parlour ke baare mein jaankari chahiye.";
 function wa(t){return "https://wa.me/"+NUM+"?text="+encodeURIComponent(t)}
 ["waTop","waBot","waFab"].forEach(function(id){document.getElementById(id).href=wa(hi)});
@@ -180,11 +188,13 @@ function renderSlots(){var o=document.getElementById("slots");o.innerHTML="";
 renderDates();renderSlots();
 function banner(){if(!ready){var n=document.getElementById("err");n.textContent="Setup baaki: abhi booking lock nahi hogi. Firebase config daaliye."}}
 banner();
-if(ready){firebase.initializeApp(firebaseConfig);db=firebase.firestore();auth=firebase.auth();
+if(ready){try{firebase.initializeApp(cfg);db=firebase.firestore();auth=firebase.auth();
   db.collection("slots").onSnapshot(function(s){taken={};s.forEach(function(d){taken[d.id]=1});renderSlots()},function(){});
   auth.onAuthStateChanged(function(u){owner=!!u;if(unsub){unsub();unsub=null}bk={};
     if(owner){unsub=db.collection("bookings").orderBy("slot").onSnapshot(function(s){bk={};s.forEach(function(d){bk[d.id]=d.data()});renderOwner()},function(){})}
-    renderOwner();renderSlots()})}
+    renderOwner();renderSlots()})}catch(e){ready=false;document.getElementById("err").textContent="Database se connect nahi ho paya."}}
+function notifyEmail(n,p,s,m,k,t){if(String(EM).indexOf("PASTE")>-1)return;
+  try{fetch(EM,{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({_subject:"Nayi Appointment: "+n+" - "+dmy(k)+" "+lab(t),Naam:n,Mobile:p,Service:s,Date:dmy(k),Time:lab(t),Message:m||"-"})}).catch(function(){})}catch(e){}}
 function bookingDoc(n,p,s,m,k,t){return{name:n,phone:p,service:s,msg:m,slot:k+" "+t,status:"pending",at:firebase.firestore.FieldValue.serverTimestamp()}}
 async function ownerTap(t,isb){var id=sid(selD,t);
   try{if(isb){if(!confirm("Ye booking hata dein? ("+dmy(selD)+", "+lab(t)+")"))return;
@@ -226,12 +236,13 @@ document.getElementById("f").addEventListener("submit",async function(e){
   if(isBooked(selD,selT)){er.textContent="Ye slot booked hai, doosra slot chuniye.";return}
   er.textContent="";
   var text="*Appointment Request*\nGita Shringar Store & Beauty Parlour\n\nNaam: "+n+"\nMobile: "+p+"\nService: "+s+"\nDate: "+dmy(selD)+"\nTime: "+lab(selT)+(m?"\nMessage: "+m:"");
-  if(!ready){window.open(wa(text),"_blank");return}
+  if(!ready){notifyEmail(n,p,s,m,selD,selT);window.open(wa(text),"_blank");return}
   var id=sid(selD,selT);btn.disabled=true;
   try{var b=db.batch();
     b.set(db.collection("slots").doc(id),{booked:true});
     b.set(db.collection("bookings").doc(id),bookingDoc(n.slice(0,50),p.slice(0,15),s,m.slice(0,200),selD,selT));
     await b.commit();
+    notifyEmail(n,p,s,m,selD,selT);
     var d=document.getElementById("done");d.innerHTML="";var c=el("div","ownerbox");c.style.textAlign="center";
     c.appendChild(el("b","","Aapka slot book ho gaya: "+dmy(selD)+", "+lab(selT)));
     c.appendChild(el("div","","Ab neeche button se WhatsApp par details bhej dijiye, taaki hum confirm kar sakein."));
@@ -241,9 +252,6 @@ document.getElementById("f").addEventListener("submit",async function(e){
     if(x.code==="permission-denied"){er.textContent="Ye slot abhi kisi aur ne book kar liya. Doosra slot chuniye.";selT=null;renderSlots()}
     else er.textContent="Booking nahi hui. Internet check karke dobara try karein."}
   btn.disabled=false});
-</script>ssage: "+m:"");
-  window.open("https://wa.me/"+NUM+"?text="+encodeURIComponent(text),"_blank");
-});
 </script>
 </body>
 </html>
