@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gita Shringar Store & Beauty Parlour</title>
+<style>
+:root{--bg:#FFF8F2;--card:#fff;--ink:#2A1A1F;--muted:#6b565c;--brand:#7A1B3A;--gold:#B8892B;--soft:#F6E3E6;--line:#EAD6D9;--wa:#1FA855;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1A1114;--card:#261a1e;--ink:#F6E9EC;--muted:#c3a9b0;--brand:#E58AA6;--gold:#E0B85A;--soft:#33222a;--line:#46313a}}
+:root[data-theme="dark"]{--bg:#1A1114;--card:#261a1e;--ink:#F6E9EC;--muted:#c3a9b0;--brand:#E58AA6;--gold:#E0B85A;--soft:#33222a;--line:#46313a}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Poppins",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.55}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:980px;margin:0 auto;padding:0 18px}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:10px 0}
+.logo{font-family:"Playfair Display",Georgia,serif;font-weight:700;color:var(--brand);font-size:18px;line-height:1.1}
+.logo small{display:block;font-family:inherit;font-size:11px;color:var(--gold);letter-spacing:.12em;font-weight:600}
+.btn{display:inline-block;border:0;cursor:pointer;border-radius:999px;padding:12px 22px;font-weight:600;font-size:15px;font-family:inherit}
+.btn.main{background:var(--brand);color:#fff}
+.btn.wa{background:var(--wa);color:#fff}
+.btn.ghost{background:transparent;border:2px solid var(--brand);color:var(--brand)}
+.hero{padding:44px 0 36px;text-align:center;background:linear-gradient(180deg,var(--soft),var(--bg))}
+.hero h1{font-family:"Playfair Display",Georgia,serif;font-size:clamp(30px,7vw,52px);margin:0 0 8px;color:var(--brand);line-height:1.15}
+.hero p{max-width:560px;margin:0 auto 22px;color:var(--muted);font-size:17px}
+.cta{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+section{padding:36px 0}
+h2{font-family:"Playfair Display",Georgia,serif;color:var(--brand);font-size:28px;margin:0 0 6px;text-align:center}
+.sub{text-align:center;color:var(--muted);margin:0 0 22px}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px}
+.card .ic{font-size:30px}
+.card h3{margin:8px 0 4px;font-size:18px;color:var(--ink)}
+.card p{margin:0;color:var(--muted);font-size:15px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.chip{background:var(--soft);color:var(--brand);border-radius:999px;padding:7px 14px;font-size:14px;font-weight:600}
+form{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;max-width:560px;margin:0 auto}
+label{display:block;font-weight:600;font-size:14px;margin:12px 0 4px}
+input,select,textarea{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit;font-size:16px}
+textarea{min-height:70px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.err{color:#c0392b;font-size:14px;min-height:20px;margin-top:8px}
+form .btn{width:100%;margin-top:14px}
+.note{font-size:13px;color:var(--muted);text-align:center;margin:10px 0 0}
+.contact{text-align:center}
+.contact .cta{margin-top:14px}
+footer{text-align:center;padding:22px 0 30px;color:var(--muted);font-size:13px;border-top:1px solid var(--line)}
+.fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--wa);color:#fff;border-radius:999px;padding:13px 18px;font-weight:700;box-shadow:0 4px 14px rgba(0,0,0,.25);z-index:6}
+.dates{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px}
+.d{flex:0 0 auto;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:12px;padding:8px 12px;text-align:center;cursor:pointer;font:inherit;font-size:13px}
+.d b{display:block;font-size:17px}.d.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+.slots{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.s{padding:10px 4px;border-radius:10px;border:1px solid var(--wa);background:transparent;color:var(--wa);font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.s.bk{border-color:var(--line);color:var(--muted);background:var(--soft);text-decoration:line-through;cursor:not-allowed}
+.s.on{background:var(--wa);color:#fff}
+.legend{display:flex;gap:12px;font-size:12px;color:var(--muted);margin-top:8px;flex-wrap:wrap}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+.lf{border:1px solid var(--wa)}.lb{background:var(--soft);border:1px solid var(--line)}.ls{background:var(--wa)}
+.sel{font-size:14px;font-weight:600;color:var(--brand);margin-top:8px;min-height:20px}
+.ownerbox{max-width:560px;margin:0 auto 14px;background:var(--soft);border:1px dashed var(--brand);border-radius:12px;padding:10px 14px;font-size:14px}
+@media(max-width:420px){.row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><div class="wrap nav">
+  <div class="logo">Gita Shringar Store<small>&amp; BEAUTY PARLOUR</small></div>
+  <a class="btn main" href="#book">Book Now</a>
+</div></header>
+
+<div class="hero"><div class="wrap">
+  <h1>Gita Shringar Store &amp; Beauty Parlour</h1>
+  <p>Beauty parlour, shringar &amp; cosmetics store, and bridal jewellery &amp; lehenga on rent &mdash; sab kuch ek hi jagah.</p>
+  <div class="cta">
+    <a class="btn main" href="#book">Book Appointment</a>
+    <a class="btn wa" id="waTop" href="#" target="_blank" rel="noopener">WhatsApp Us</a>
+  </div>
+</div></div>
+
+<section id="about"><div class="wrap">
+  <h2>Yahan Kya Milta Hai</h2>
+  <p class="sub">Aapke har khaas mauke ke liye</p>
+  <div class="grid">
+    <div class="card"><div class="ic">💄</div><h3>Beauty Parlour</h3><p>Facial, makeup, hair, bridal makeup aur beauty ki sabhi services, expert care ke saath.</p></div>
+    <div class="card"><div class="ic">🛍️</div><h3>Shringar Store</h3><p>Shringar store ke sabhi products yahan available hain, saath mein cosmetics bhi.</p></div>
+    <div class="card"><div class="ic">👰</div><h3>Bridal Jewellery &amp; Lehenga on Rent</h3><p>Dulhan ke liye bridal jewellery aur lehenga rent par milta hai.</p></div>
+  </div>
+</div></section>
+
+<section id="services" style="background:var(--soft)"><div class="wrap">
+  <h2>Hamari Services</h2>
+  <p class="sub">Appointment book karke lambi line se bachiye</p>
+  <div class="chips">
+    <span class="chip">Facial &amp; Cleanup</span><span class="chip">Makeup</span><span class="chip">Bridal Makeup</span>
+    <span class="chip">Hair Cut &amp; Styling</span><span class="chip">Hair Colour</span><span class="chip">Hair Spa</span>
+    <span class="chip">Waxing</span><span class="chip">Threading</span><span class="chip">Manicure &amp; Pedicure</span>
+    <span class="chip">Mehandi</span><span class="chip">Saree Draping</span>
+  </div>
+</div></section>
+
+<section id="book"><div class="wrap">
+  <h2>Online Appointment Book Karein</h2>
+  <p class="sub">Khali slot chuniye, form bharein aur WhatsApp par request bhejiye</p>
+  <div id="ownerbar"></div>
+  <form id="f" novalidate>
+    <label for="name">Aapka Naam *</label>
+    <input id="name" autocomplete="name" placeholder="Poora naam">
+    <label for="phone">Mobile Number *</label>
+    <input id="phone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="10 digit number">
+    <label for="service">Service *</label>
+    <select id="service">
+      <option value="">Service chuniye</option>
+      <option>Facial &amp; Cleanup</option><option>Makeup</option><option>Bridal Makeup</option>
+      <option>Hair Cut &amp; Styling</option><option>Hair Colour</option><option>Hair Spa</option>
+      <option>Waxing</option><option>Threading</option><option>Manicure &amp; Pedicure</option>
+      <option>Mehandi</option><option>Saree Draping</option>
+      <option>Bridal Jewellery / Lehenga on Rent</option>
+    </select>
+    <label>Date chuniye *</label><div class="dates" id="dates"></div>
+    <label>Time slot chuniye *</label><div class="slots" id="slots"></div>
+    <div class="legend"><span><i class="lf"></i>Khali</span><span><i class="lb"></i>Booked</span><span><i class="ls"></i>Aapka chuna hua</span></div>
+    <div class="sel" id="selinfo"></div>
+    <label for="msg">Koi message (optional)</label>
+    <textarea id="msg" placeholder="Jaise: dulhan makeup, 2 log, etc."></textarea>
+    <div class="err" id="err" role="alert"></div>
+    <button type="submit" class="btn wa">Book on WhatsApp</button>
+    <p class="note">WhatsApp khulega, bas "Send" dabaiye. Slot tab pakka hoga jab hum WhatsApp par confirm karenge, uske baad ye sabko "Booked" dikhega.</p>
+  </form>
+</div></section>
+
+<section id="contact" style="background:var(--soft)"><div class="wrap contact">
+  <h2>Contact Us</h2>
+  <p class="sub">Call ya WhatsApp par seedha baat kijiye</p>
+  <p style="font-size:22px;font-weight:700;margin:0">📞 9304253705</p>
+  <div class="cta">
+    <a class="btn main" href="tel:+919304253705">Call Now</a>
+    <a class="btn wa" id="waBot" href="#" target="_blank" rel="noopener">WhatsApp</a>
+  </div>
+</div></section>
+
+<footer><div class="wrap">&copy; Gita Shringar Store &amp; Beauty Parlour &middot; Beauty Parlour &middot; Shringar Store &middot; Bridal Jewellery &amp; Lehenga on Rent</div></footer>
+<a class="fab" id="waFab" href="#" target="_blank" rel="noopener">WhatsApp</a>
+
+<script type="application/json" id="state">{"booked":[]}</script>
+<script>
+var NUM="919304253705";
+var hi="Namaste, mujhe Gita Shringar Store & Beauty Parlour ke baare mein jaankari chahiye.";
+["waTop","waBot","waFab"].forEach(function(id){document.getElementById(id).href="https://wa.me/"+NUM+"?text="+encodeURIComponent(hi);});
+var st=JSON.parse(document.getElementById("state").textContent);
+var TIMES=["10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00"];
+var DN=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+var selD=null,selT=null,owner=false,art=null,days=[],ownerSel=null,db=null,bk={};
+function pad(n){return String(n).padStart(2,"0")}
+function key(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}
+function lab(t){var h=+t.split(":")[0];return(h%12||12)+":00 "+(h<12?"AM":"PM")}
+function isBooked(k,t){return st.booked.indexOf(k+" "+t)>-1}
+function isPast(k,t){return new Date(k+"T"+t+":00")<=new Date()}
+for(var i=0;i<14;i++){var x=new Date();x.setDate(x.getDate()+i);days.push(x)}
+selD=key(days[0]);
+function renderDates(){var el=document.getElementById("dates");el.innerHTML="";
+  days.forEach(function(d){var k=key(d),b=document.createElement("button");b.type="button";
+    b.className="d"+(k===selD?" on":"");b.innerHTML=DN[d.getDay()]+"<b>"+d.getDate()+"</b>"+MN[d.getMonth()];
+    b.onclick=function(){selD=k;selT=null;renderDates();renderSlots()};el.appendChild(b)})}
+function renderSlots(){var el=document.getElementById("slots");el.innerHTML="";
+  TIMES.forEach(function(t){var bk=isBooked(selD,t),pa=isPast(selD,t),b=document.createElement("button");b.type="button";
+    b.className="s"+((bk||pa)?" bk":"")+(selT===t?" on":"");b.textContent=lab(t);
+    b.onclick=function(){
+      if(owner){if(pa)return;selT=t;ownerSel=selD+" "+t;renderOwner();renderSlots();return}
+      if(bk||pa)return;selT=t;renderSlots()};
+    el.appendChild(b)});
+  document.getElementById("selinfo").textContent=selT?("Chuna hua slot: "+selD.split("-").reverse().join("-")+", "+lab(selT)):""}
+function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e}
+function fmt(k){var p=k.split(" ");return p[0].split("-").reverse().join("-")+", "+lab(p[1])}
+function docId(k){return k.replace(/[ :]/g,"-")}
+function renderOwner(){var o=document.getElementById("ownerbar");if(!owner)return;o.innerHTML="";var b=el("div","ownerbox");
+  b.appendChild(el("b","","Owner Panel"));
+  b.appendChild(el("div","","Khali slot par tap karke booking likhiye. Booked slot par tap karke details dekhiye ya cancel kijiye."));
+  if(ownerSel){var bd=bk[ownerSel],isb=st.booked.indexOf(ownerSel)>-1;
+    b.appendChild(el("div","sel",fmt(ownerSel)+(isb?" (Booked)":" (Khali)")));
+    if(isb){if(bd)b.appendChild(el("div","","Naam: "+bd.name+" | Mobile: "+bd.phone+" | Service: "+bd.service));
+      var c1=el("button","btn ghost","Slot khali karein (cancel)");c1.type="button";c1.style.marginTop="8px";c1.onclick=function(){cancelSlot(ownerSel)};b.appendChild(c1)}
+    else{var n=el("input");n.placeholder="Customer ka naam";var p=el("input");p.placeholder="Mobile number";p.type="tel";var s=el("input");s.placeholder="Service";
+      [n,p,s].forEach(function(x){x.style.marginTop="8px";b.appendChild(x)});
+      var c2=el("button","btn wa","Booked save karein");c2.type="button";c2.style.marginTop="8px";c2.onclick=function(){bookSlot(ownerSel,n.value.trim(),p.value.trim(),s.value.trim())};b.appendChild(c2)}}
+  var keys=Object.keys(bk).sort();
+  if(keys.length){var h=el("b","","Saari Bookings ("+keys.length+")");h.style.display="block";h.style.marginTop="12px";b.appendChild(h);
+    keys.forEach(function(k){var v=bk[k],r=el("div","");r.style.cssText="padding:6px 0;border-top:1px solid var(--line)";
+      r.appendChild(el("div","",fmt(k)+" | "+v.name+" | "+v.service));var a=el("a","",v.phone);a.href="tel:"+v.phone;a.style.cssText="color:var(--brand);font-weight:600";r.appendChild(a);b.appendChild(r)})}
+  else if(db){var m=el("div","","Abhi koi booking save nahi hai.");m.style.marginTop="10px";b.appendChild(m)}
+  else{b.appendChild(el("div","","Details save karne ke liye database available nahi hai, sirf slot Booked ya Khali ho sakta hai."))}
+  o.appendChild(b)}
+async function bookSlot(k,n,p,s){
+  if(!n||!p){document.getElementById("err").textContent="Naam aur mobile number zaroori hai.";return}
+  if(db){try{await db.collection("bookings").doc(docId(k)).set({slot:k,name:n,phone:p,service:s||"-",at:Date.now()})}catch(e){document.getElementById("err").textContent="Details save nahi hui.";return}}
+  if(st.booked.indexOf(k)<0)st.booked.push(k);save()}
+async function cancelSlot(k){
+  if(db){try{await db.collection("bookings").doc(docId(k)).delete()}catch(e){}}
+  var i=st.booked.indexOf(k);if(i>-1)st.booked.splice(i,1);save()}
+async function save(){
+  var c=document.documentElement.cloneNode(true);
+  c.querySelector("#state").textContent=JSON.stringify(st);
+  ["dates","slots","selinfo","ownerbar"].forEach(function(id){c.querySelector("#"+id).innerHTML=""});
+  c.querySelector("#err").textContent="";
+  try{await art.publish("<!DOCTYPE html>\n"+c.outerHTML)}catch(e){document.getElementById("err").textContent="Save nahi hua, dobara try karein."}}
+renderDates();renderSlots();
+(async function(){try{if(!window.claude)return;var u=await claude.use("user");art=await claude.use("artifact");
+  if(u&&u.canEdit()&&art){owner=true;try{db=await claude.use("db")}catch(e){}if(db){db.collection("bookings").onSnapshot(function(sn){bk={};sn.docs.forEach(function(d){var v=d.data();if(v&&v.slot)bk[v.slot]=v});renderOwner()},function(){})}renderOwner()}}catch(e){}})();
+document.getElementById("f").addEventListener("submit",function(e){
+  e.preventDefault();
+  var n=document.getElementById("name").value.trim(),p=document.getElementById("phone").value.replace(/\D/g,""),
+      s=document.getElementById("service").value,m=document.getElementById("msg").value.trim(),er=document.getElementById("err");
+  if(!n||!s){er.textContent="Kripya naam aur service bharein.";return;}
+  if(p.length<10){er.textContent="Sahi 10 digit mobile number daalein.";return;}
+  if(!selT){er.textContent="Kripya ek khali time slot chuniye.";return;}
+  if(isBooked(selD,selT)){er.textContent="Ye slot booked hai, doosra slot chuniye.";return;}
+  er.textContent="";
+  var text="*Appointment Request*\nGita Shringar Store & Beauty Parlour\n\nNaam: "+n+"\nMobile: "+p+"\nService: "+s+"\nDate: "+selD.split("-").reverse().join("-")+"\nTime: "+lab(selT)+(m?"\nMessage: "+m:"");
+  window.open("https://wa.me/"+NUM+"?text="+encodeURIComponent(text),"_blank");
+});
+</script>
+</body>
+</html>
