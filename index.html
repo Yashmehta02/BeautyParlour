@@ -125,8 +125,9 @@ footer{text-align:center;padding:22px 0 30px;color:var(--muted);font-size:13px;b
     <textarea id="msg" placeholder="Jaise: dulhan makeup, 2 log, etc."></textarea>
     <div class="err" id="err" role="alert"></div>
     <button type="submit" class="btn wa">Book on WhatsApp</button>
-    <p class="note">WhatsApp khulega, bas "Send" dabaiye. Slot tab pakka hoga jab hum WhatsApp par confirm karenge, uske baad ye sabko "Booked" dikhega.</p>
+    <p class="note">Book karte hi ye slot sabko "Booked" dikhega, aur koi doosra ise book nahi kar payega.</p>
   </form>
+  <div id="done" style="max-width:560px;margin:14px auto 0"></div>
 </div></section>
 
 <section id="contact" style="background:var(--soft)"><div class="wrap contact">
@@ -139,83 +140,108 @@ footer{text-align:center;padding:22px 0 30px;color:var(--muted);font-size:13px;b
   </div>
 </div></section>
 
-<footer><div class="wrap">&copy; Gita Shringar Store &amp; Beauty Parlour &middot; Beauty Parlour &middot; Shringar Store &middot; Bridal Jewellery &amp; Lehenga on Rent</div></footer>
-<a class="fab" id="waFab" href="#" target="_blank" rel="noopener">WhatsApp</a>
-
-<script type="application/json" id="state">{"booked":[]}</script>
+<footer><div class="wrap"><a href="#book" id="olink" style="float:right;font-size:12px;opacity:.6">Owner Login</a>&copy; Gita Shringar Store &amp; Beauty Parlour &middot; Beauty Parlour &middot; Shringar Store &middot; Bridal Jewellery &amp; Le<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script>
+/* ====== SETUP: yahan apna Firebase config paste kijiye (Firebase Console > Project settings > Your apps) ====== */
+var firebaseConfig={apiKey:"PASTE_API_KEY",authDomain:"PASTE_AUTH_DOMAIN",projectId:"PASTE_PROJECT_ID",appId:"PASTE_APP_ID"};
+/* ====================================================================================================== */
 var NUM="919304253705";
+var ready=firebaseConfig.apiKey.indexOf("PASTE")<0,db=null,auth=null,unsub=null;
 var hi="Namaste, mujhe Gita Shringar Store & Beauty Parlour ke baare mein jaankari chahiye.";
-["waTop","waBot","waFab"].forEach(function(id){document.getElementById(id).href="https://wa.me/"+NUM+"?text="+encodeURIComponent(hi);});
-var st=JSON.parse(document.getElementById("state").textContent);
+function wa(t){return "https://wa.me/"+NUM+"?text="+encodeURIComponent(t)}
+["waTop","waBot","waFab"].forEach(function(id){document.getElementById(id).href=wa(hi)});
 var TIMES=["10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00"];
 var DN=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-var selD=null,selT=null,owner=false,art=null,days=[],ownerSel=null,db=null,bk={};
+var selD=null,selT=null,owner=false,days=[],taken={},bk={};
 function pad(n){return String(n).padStart(2,"0")}
 function key(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}
 function lab(t){var h=+t.split(":")[0];return(h%12||12)+":00 "+(h<12?"AM":"PM")}
-function isBooked(k,t){return st.booked.indexOf(k+" "+t)>-1}
+function sid(k,t){return k+"_"+t.replace(":","")}
+function isBooked(k,t){return !!taken[sid(k,t)]}
 function isPast(k,t){return new Date(k+"T"+t+":00")<=new Date()}
+function dmy(k){return k.split("-").reverse().join("-")}
+function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e}
 for(var i=0;i<14;i++){var x=new Date();x.setDate(x.getDate()+i);days.push(x)}
 selD=key(days[0]);
-function renderDates(){var el=document.getElementById("dates");el.innerHTML="";
+function renderDates(){var o=document.getElementById("dates");o.innerHTML="";
   days.forEach(function(d){var k=key(d),b=document.createElement("button");b.type="button";
     b.className="d"+(k===selD?" on":"");b.innerHTML=DN[d.getDay()]+"<b>"+d.getDate()+"</b>"+MN[d.getMonth()];
-    b.onclick=function(){selD=k;selT=null;renderDates();renderSlots()};el.appendChild(b)})}
-function renderSlots(){var el=document.getElementById("slots");el.innerHTML="";
-  TIMES.forEach(function(t){var bk=isBooked(selD,t),pa=isPast(selD,t),b=document.createElement("button");b.type="button";
-    b.className="s"+((bk||pa)?" bk":"")+(selT===t?" on":"");b.textContent=lab(t);
+    b.onclick=function(){selD=k;selT=null;renderDates();renderSlots()};o.appendChild(b)})}
+function renderSlots(){var o=document.getElementById("slots");o.innerHTML="";
+  TIMES.forEach(function(t){var bkd=isBooked(selD,t),pa=isPast(selD,t),b=document.createElement("button");b.type="button";
+    b.className="s"+((bkd||pa)?" bk":"")+(selT===t?" on":"");b.textContent=lab(t);
     b.onclick=function(){
-      if(owner){if(pa)return;selT=t;ownerSel=selD+" "+t;renderOwner();renderSlots();return}
-      if(bk||pa)return;selT=t;renderSlots()};
-    el.appendChild(b)});
-  document.getElementById("selinfo").textContent=selT?("Chuna hua slot: "+selD.split("-").reverse().join("-")+", "+lab(selT)):""}
-function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e}
-function fmt(k){var p=k.split(" ");return p[0].split("-").reverse().join("-")+", "+lab(p[1])}
-function docId(k){return k.replace(/[ :]/g,"-")}
-function renderOwner(){var o=document.getElementById("ownerbar");if(!owner)return;o.innerHTML="";var b=el("div","ownerbox");
-  b.appendChild(el("b","","Owner Panel"));
-  b.appendChild(el("div","","Khali slot par tap karke booking likhiye. Booked slot par tap karke details dekhiye ya cancel kijiye."));
-  if(ownerSel){var bd=bk[ownerSel],isb=st.booked.indexOf(ownerSel)>-1;
-    b.appendChild(el("div","sel",fmt(ownerSel)+(isb?" (Booked)":" (Khali)")));
-    if(isb){if(bd)b.appendChild(el("div","","Naam: "+bd.name+" | Mobile: "+bd.phone+" | Service: "+bd.service));
-      var c1=el("button","btn ghost","Slot khali karein (cancel)");c1.type="button";c1.style.marginTop="8px";c1.onclick=function(){cancelSlot(ownerSel)};b.appendChild(c1)}
-    else{var n=el("input");n.placeholder="Customer ka naam";var p=el("input");p.placeholder="Mobile number";p.type="tel";var s=el("input");s.placeholder="Service";
-      [n,p,s].forEach(function(x){x.style.marginTop="8px";b.appendChild(x)});
-      var c2=el("button","btn wa","Booked save karein");c2.type="button";c2.style.marginTop="8px";c2.onclick=function(){bookSlot(ownerSel,n.value.trim(),p.value.trim(),s.value.trim())};b.appendChild(c2)}}
-  var keys=Object.keys(bk).sort();
-  if(keys.length){var h=el("b","","Saari Bookings ("+keys.length+")");h.style.display="block";h.style.marginTop="12px";b.appendChild(h);
-    keys.forEach(function(k){var v=bk[k],r=el("div","");r.style.cssText="padding:6px 0;border-top:1px solid var(--line)";
-      r.appendChild(el("div","",fmt(k)+" | "+v.name+" | "+v.service));var a=el("a","",v.phone);a.href="tel:"+v.phone;a.style.cssText="color:var(--brand);font-weight:600";r.appendChild(a);b.appendChild(r)})}
-  else if(db){var m=el("div","","Abhi koi booking save nahi hai.");m.style.marginTop="10px";b.appendChild(m)}
-  else{b.appendChild(el("div","","Details save karne ke liye database available nahi hai, sirf slot Booked ya Khali ho sakta hai."))}
-  o.appendChild(b)}
-async function bookSlot(k,n,p,s){
-  if(!n||!p){document.getElementById("err").textContent="Naam aur mobile number zaroori hai.";return}
-  if(db){try{await db.collection("bookings").doc(docId(k)).set({slot:k,name:n,phone:p,service:s||"-",at:Date.now()})}catch(e){document.getElementById("err").textContent="Details save nahi hui.";return}}
-  if(st.booked.indexOf(k)<0)st.booked.push(k);save()}
-async function cancelSlot(k){
-  if(db){try{await db.collection("bookings").doc(docId(k)).delete()}catch(e){}}
-  var i=st.booked.indexOf(k);if(i>-1)st.booked.splice(i,1);save()}
-async function save(){
-  var c=document.documentElement.cloneNode(true);
-  c.querySelector("#state").textContent=JSON.stringify(st);
-  ["dates","slots","selinfo","ownerbar"].forEach(function(id){c.querySelector("#"+id).innerHTML=""});
-  c.querySelector("#err").textContent="";
-  try{await art.publish("<!DOCTYPE html>\n"+c.outerHTML)}catch(e){document.getElementById("err").textContent="Save nahi hua, dobara try karein."}}
+      if(owner){if(pa)return;ownerTap(t,bkd);return}
+      if(bkd||pa)return;selT=t;renderSlots()};
+    o.appendChild(b)});
+  document.getElementById("selinfo").textContent=selT?("Chuna hua slot: "+dmy(selD)+", "+lab(selT)):""}
 renderDates();renderSlots();
-(async function(){try{if(!window.claude)return;var u=await claude.use("user");art=await claude.use("artifact");
-  if(u&&u.canEdit()&&art){owner=true;try{db=await claude.use("db")}catch(e){}if(db){db.collection("bookings").onSnapshot(function(sn){bk={};sn.docs.forEach(function(d){var v=d.data();if(v&&v.slot)bk[v.slot]=v});renderOwner()},function(){})}renderOwner()}}catch(e){}})();
-document.getElementById("f").addEventListener("submit",function(e){
+function banner(){if(!ready){var n=document.getElementById("err");n.textContent="Setup baaki: abhi booking lock nahi hogi. Firebase config daaliye."}}
+banner();
+if(ready){firebase.initializeApp(firebaseConfig);db=firebase.firestore();auth=firebase.auth();
+  db.collection("slots").onSnapshot(function(s){taken={};s.forEach(function(d){taken[d.id]=1});renderSlots()},function(){});
+  auth.onAuthStateChanged(function(u){owner=!!u;if(unsub){unsub();unsub=null}bk={};
+    if(owner){unsub=db.collection("bookings").orderBy("slot").onSnapshot(function(s){bk={};s.forEach(function(d){bk[d.id]=d.data()});renderOwner()},function(){})}
+    renderOwner();renderSlots()})}
+function bookingDoc(n,p,s,m,k,t){return{name:n,phone:p,service:s,msg:m,slot:k+" "+t,status:"pending",at:firebase.firestore.FieldValue.serverTimestamp()}}
+async function ownerTap(t,isb){var id=sid(selD,t);
+  try{if(isb){if(!confirm("Ye booking hata dein? ("+dmy(selD)+", "+lab(t)+")"))return;
+      var b=db.batch();b.delete(db.collection("slots").doc(id));b.delete(db.collection("bookings").doc(id));await b.commit()}
+    else{var n=prompt("Walk-in customer ka naam (ya 'Band' likhiye slot band karne ke liye):");if(!n)return;
+      var b2=db.batch();b2.set(db.collection("slots").doc(id),{booked:true});
+      b2.set(db.collection("bookings").doc(id),bookingDoc(n.slice(0,50),"-","Walk-in / Band","",selD,t));await b2.commit()}
+  }catch(e){alert("Nahi hua: "+(e.code||e.message))}}
+function renderOwner(){var o=document.getElementById("ownerbar");o.innerHTML="";if(!ready)return;
+  if(!owner){return}
+  var b=el("div","ownerbox");b.appendChild(el("b","","Owner Panel"));
+  var out=el("button","btn ghost","Logout");out.type="button";out.style.cssText="float:right;padding:4px 12px;font-size:13px";out.onclick=function(){auth.signOut()};b.appendChild(out);
+  b.appendChild(el("div","","Khali slot par tap: walk-in ya band. Booked slot par tap: hatayein. Neeche saari bookings hain."));
+  var ks=Object.keys(bk).sort(function(a,c){return bk[a].slot<bk[c].slot?-1:1});
+  if(!ks.length){var m=el("div","","Abhi koi booking nahi hai.");m.style.marginTop="8px";b.appendChild(m)}
+  ks.forEach(function(k){var v=bk[k],r=el("div","");r.style.cssText="padding:7px 0;border-top:1px solid var(--line)";
+    var p=v.slot.split(" ");r.appendChild(el("div","",dmy(p[0])+", "+lab(p[1])+" | "+v.name+" | "+v.service));
+    if(v.msg)r.appendChild(el("div","","Msg: "+v.msg));
+    if(v.phone&&v.phone!=="-"){var a=el("a","",v.phone);a.href="tel:"+v.phone;a.style.cssText="color:var(--brand);font-weight:600";r.appendChild(a)}
+    b.appendChild(r)});
+  o.appendChild(b);o.scrollIntoView&&0}
+document.getElementById("olink").onclick=function(e){
+  if(!ready||owner)return;var o=document.getElementById("ownerbar");o.innerHTML="";
+  var b=el("div","ownerbox");b.appendChild(el("b","","Owner Login"));
+  var em=el("input");em.type="email";em.placeholder="Owner email";em.style.marginTop="8px";
+  var pw=el("input");pw.type="password";pw.placeholder="Password";pw.style.marginTop="8px";
+  var go=el("button","btn main","Login");go.type="button";go.style.marginTop="8px";
+  var msg=el("div","err","");
+  go.onclick=function(){auth.signInWithEmailAndPassword(em.value.trim(),pw.value).catch(function(){msg.textContent="Login nahi hua. Email ya password galat hai."})};
+  [em,pw,go,msg].forEach(function(x){b.appendChild(x)});o.appendChild(b)};
+document.getElementById("f").addEventListener("submit",async function(e){
   e.preventDefault();
   var n=document.getElementById("name").value.trim(),p=document.getElementById("phone").value.replace(/\D/g,""),
-      s=document.getElementById("service").value,m=document.getElementById("msg").value.trim(),er=document.getElementById("err");
-  if(!n||!s){er.textContent="Kripya naam aur service bharein.";return;}
-  if(p.length<10){er.textContent="Sahi 10 digit mobile number daalein.";return;}
-  if(!selT){er.textContent="Kripya ek khali time slot chuniye.";return;}
-  if(isBooked(selD,selT)){er.textContent="Ye slot booked hai, doosra slot chuniye.";return;}
+      s=document.getElementById("service").value,m=document.getElementById("msg").value.trim(),er=document.getElementById("err"),
+      btn=document.querySelector("#f button[type=submit]");
+  if(!n||!s){er.textContent="Kripya naam aur service bharein.";return}
+  if(p.length<10){er.textContent="Sahi 10 digit mobile number daalein.";return}
+  if(!selT){er.textContent="Kripya ek khali time slot chuniye.";return}
+  if(isBooked(selD,selT)){er.textContent="Ye slot booked hai, doosra slot chuniye.";return}
   er.textContent="";
-  var text="*Appointment Request*\nGita Shringar Store & Beauty Parlour\n\nNaam: "+n+"\nMobile: "+p+"\nService: "+s+"\nDate: "+selD.split("-").reverse().join("-")+"\nTime: "+lab(selT)+(m?"\nMessage: "+m:"");
+  var text="*Appointment Request*\nGita Shringar Store & Beauty Parlour\n\nNaam: "+n+"\nMobile: "+p+"\nService: "+s+"\nDate: "+dmy(selD)+"\nTime: "+lab(selT)+(m?"\nMessage: "+m:"");
+  if(!ready){window.open(wa(text),"_blank");return}
+  var id=sid(selD,selT);btn.disabled=true;
+  try{var b=db.batch();
+    b.set(db.collection("slots").doc(id),{booked:true});
+    b.set(db.collection("bookings").doc(id),bookingDoc(n.slice(0,50),p.slice(0,15),s,m.slice(0,200),selD,selT));
+    await b.commit();
+    var d=document.getElementById("done");d.innerHTML="";var c=el("div","ownerbox");c.style.textAlign="center";
+    c.appendChild(el("b","","Aapka slot book ho gaya: "+dmy(selD)+", "+lab(selT)));
+    c.appendChild(el("div","","Ab neeche button se WhatsApp par details bhej dijiye, taaki hum confirm kar sakein."));
+    var l=el("a","btn wa","WhatsApp par bhejein");l.href=wa(text);l.target="_blank";l.rel="noopener";l.style.marginTop="10px";c.appendChild(l);d.appendChild(c);
+    selT=null;document.getElementById("f").reset();renderSlots();d.scrollIntoView({behavior:"smooth"})
+  }catch(x){
+    if(x.code==="permission-denied"){er.textContent="Ye slot abhi kisi aur ne book kar liya. Doosra slot chuniye.";selT=null;renderSlots()}
+    else er.textContent="Booking nahi hui. Internet check karke dobara try karein."}
+  btn.disabled=false});
+</script>ssage: "+m:"");
   window.open("https://wa.me/"+NUM+"?text="+encodeURIComponent(text),"_blank");
 });
 </script>
